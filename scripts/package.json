@@ -1,11 +1,12 @@
 {
   "name": "scripts",
   "version": "1.0.0",
-  "main": "main.ts",
+  "main": "ratings.ts",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "main": "npx tsx main.ts"
+    "ratings": "npx tsx ratings.ts",
+    "read": "npx tsx read.ts"
   },
   "keywords": [],
   "author": "",
