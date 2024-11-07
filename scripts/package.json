@@ -1,12 +1,12 @@
 {
   "name": "scripts",
   "version": "1.0.0",
-  "main": "ratings.ts",
+  "main": "getTweetRatings.ts",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "ratings": "npx tsx ratings.ts",
-    "read": "npx tsx read.ts"
+    "get": "npx tsx getTweetRatings.ts",
+    "collate": "npx tsx collateTweetRatings.ts"
   },
   "keywords": [],
   "author": "",
