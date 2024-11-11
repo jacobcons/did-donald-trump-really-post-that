@@ -14,17 +14,17 @@ for (const fileContent of fileContents) {
   tweets.push(...JSON.parse(fileContent));
 }
 
-const highlyRatedTweets = tweets
+let highlyRatedTweets = tweets
   .filter((t) => t.rating >= 9)
   .map((t) => t.text);
 
-const removedDuplicates = [...new Set(highlyRatedTweets)];
+highlyRatedTweets = [...new Set(highlyRatedTweets)];
 
 await fs.writeFile(
   './highly-rated-tweets.json',
-  JSON.stringify(removedDuplicates),
+  JSON.stringify(highlyRatedTweets),
 );
 
-await clipboardy.writeSync(
-  highlyRatedTweets.map((t, i) => `${i}. ${t}`).join('\n'),
-);
+//await clipboardy.writeSync(
+//   highlyRatedTweets.map((t, i) => `${i}. ${t}`).join('\n'),
+// );
