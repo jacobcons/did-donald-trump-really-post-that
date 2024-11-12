@@ -1,7 +1,13 @@
 import fs from 'fs/promises';
 import OpenAI from 'openai';
 import highlyRatedTweets from './real-tweets.json' with { type: 'json' };
-import { delay, getUpperCaseWordsMessage, readJson } from './common.js';
+import {
+  delay,
+  getUpperCaseWordsMessage,
+  readJson,
+  shuffleArray,
+  writeJSON,
+} from './common.js';
 import topics from './topics.json' with { type: 'json' };
 const openai = new OpenAI();
 import nlp from 'compromise';
@@ -10,9 +16,13 @@ type Prompt = {
   userMessage: string;
   systemMessage: string;
 };
-const PROBABILITY_TO_MAKE_EXTRA_FUNNY = 0.5;
 const prompts: Prompt[] = [];
-for (const tweet of highlyRatedTweets) {
+const shuffledRealTweets = shuffleArray(highlyRatedTweets).slice(0, 150);
+await Promise.all([
+  writeJSON('./real-tweets.json', shuffledRealTweets),
+  writeJSON('../frontend/src/data/real-tweets.json', shuffledRealTweets),
+]);
+for (const tweet of shuffledRealTweets) {
   const length = tweet.length;
   const uppercaseWordsMessage = getUpperCaseWordsMessage(tweet);
   const totalNumbers = getTotalNumbers(tweet);
@@ -29,7 +39,7 @@ for (const tweet of highlyRatedTweets) {
 
   const randomTopic = topics[Math.floor(Math.random() ** 2 * topics.length)];
   const topicMessage =
-    !personWithLongestName && Math.random() < 1
+    !personWithLongestName && Math.random() < 0.8
       ? ` It should be about ${randomTopic}`
       : '';
 
@@ -44,8 +54,12 @@ for (const tweet of highlyRatedTweets) {
   const endingDotsMessage =
     totalEndingDots > 1 ? ` It should end with ${totalEndingDots} dots.` : '';
 
+  const ampersandMessage = tweet.includes('&amp;')
+    ? ` It should include & symbol.`
+    : '';
+
   const makeExtraFunnyMessage =
-    Math.random() < PROBABILITY_TO_MAKE_EXTRA_FUNNY
+    Math.random() < 0.8
       ? " Make it funny but not so funny/absurd that it's obvious it's fake."
       : '';
   const capitalizeWordsInARowMessage =
@@ -54,7 +68,7 @@ for (const tweet of highlyRatedTweets) {
       : '';
 
   const systemMessage = `I'm making a game where users have to guess whether a donald trump tweet is real or fake. You will generate a fake donald trump tweet in his style of speaking (it must be from before 2021 February)${makeExtraFunnyMessage}`;
-  const userMessage = `It should have roughly ${length} characters, ${uppercaseWordsMessage} words should be in all capitals${capitalizeWordsInARowMessage}, have ${totalHashtags} hashtags, have ${totalNumbers} numbers. Think about the huge list of possible topics you could tweet about.${personMessage}${beginningDotsMessage}${endingDotsMessage}${topicMessage}
+  const userMessage = `It should have roughly ${length} characters, ${uppercaseWordsMessage} words should be in all capitals${capitalizeWordsInARowMessage}, have ${totalHashtags} hashtags, have ${totalNumbers} numbers. Think about the huge list of possible topics you could tweet about.${personMessage}${beginningDotsMessage}${endingDotsMessage}${topicMessage}${ampersandMessage}
   
   Step 1 - reiterate number of rough characters, number of words in all capitals, number of hashtags, number of numbers
 

@@ -30,6 +30,7 @@ let filteredTweets: StrippedTweet[] = tweets
     (tweet) =>
       tweet.isRetweet === 'f' &&
       !tweet.text.includes('https') &&
+      !tweet.text.includes('http') &&
       !tweet.text.includes('@'),
   )
   .sort((a, b) => b.favorites - a.favorites)
@@ -91,7 +92,7 @@ while (i < tweetsWithIndex.length) {
 // GET RATINGS
 console.log(`total batches ${batches.length - 1}`);
 let promises = [];
-for (let i = 5; i <= 10; i++) {
+for (let i = 5; i <= batches.length - 1; i++) {
   console.time('batch');
   console.log(`starting batch ${i}`);
   const { batch, start, end } = batches[i];

@@ -19,7 +19,6 @@ const randomTweet = ref('');
 const tweetType = ref();
 let fakeTweetsNotChosenFrom = [...fakeTweets];
 let realTweetsNotChosenFrom = [...realTweets];
-console.log(fakeTweetsNotChosenFrom, realTweetsNotChosenFrom);
 onMounted(() => {
   selectNewTweet();
 });
