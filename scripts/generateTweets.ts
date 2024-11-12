@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import highlyRatedTweets from './real-tweets.json' with { type: 'json' };
 import { delay, readJson } from './common.js';
 const openai = new OpenAI();
+import nlp from 'compromise';
 
 type Prompt = {
   userMessage: string;
@@ -13,57 +14,62 @@ const prompts: Prompt[] = [];
 for (const tweet of highlyRatedTweets) {
   const length = tweet.length;
 
-  const uppercaseWords = tweet.match(/\b(?!I\b)([A-Z]+)\b/g);
-  const totalUppercaseWords = uppercaseWords ? uppercaseWords.length : 0;
-  const words = tweet.match(/\b([a-zA-Z]+)\b/g);
-  const totalWords = words ? words.length : 0;
-  const isAllUppercaseWords = totalUppercaseWords / totalWords === 1;
-  const uppercaseWordsMessage = isAllUppercaseWords
-    ? 'all'
-    : totalUppercaseWords;
+  const uppercaseWordsMessage = getUpperCaseWordsMessage(tweet);
 
-  const numbers = tweet.match(/((\d+,)+\d+|\d+)/g);
-  const totalNumbers = numbers ? numbers.length : 0;
+  const totalNumbers = getTotalNumbers(tweet);
 
   const totalHashtags = tweet.split('').filter((char) => char === '#').length;
 
+  const doc = nlp(tweet);
+  const personWithLongestName = doc
+    .people()
+    .out('array')
+    .sort((a, b) => b.length - a.length)[0];
+
   const systemMessage = `I'm making a game where users have to guess whether a donald trump tweet is real or fake. You will generate a fake donald trump tweet in his style of speaking (it must be from before 2021 February)${Math.random() < PROBABILITY_TO_MAKE_EXTRA_FUNNY ? " Make it funny but not so funny/absurd that it's obvious it's fake." : ''}`;
-  const userMessage = `It should have roughly ${length} characters, ${uppercaseWordsMessage} words should be in all capitals, have ${totalHashtags} hashtags, have ${totalNumbers} numbers. Think about the huge list of possible topics you could tweet about
+  const userMessage = `It should have roughly ${length} characters, ${uppercaseWordsMessage} words should be in all capitals${uppercaseWordsMessage === 'all' || uppercaseWordsMessage >= 5 ? '(sometimes you should capitalize lots of words in a row)' : ''}, have ${totalHashtags} hashtags, have ${totalNumbers} numbers. Think about the huge list of possible topics you could tweet about.${personWithLongestName ? ` It should be about ${personWithLongestName}, make it specific about that person` : ''}
   
-  Step 1 - reiterate number of rough characters, words in all capitals, hashtags, numbers
+  Step 1 - reiterate number of rough characters, number of words in all capitals, number of hashtags, number of numbers
 
   Step 2 - generate tweet according to criteria of previous step
 
   Output format -
   Step 1 - ...
   Step 2 - "<tweet>"`;
+
   prompts.push({ systemMessage, userMessage });
 }
 
-function countUpperCase(text: string) {
-  const uppercaseWords = text.match(/\b(?!I\b)([A-Z]+)\b/g);
+function getTotalNumbers(text: string) {
+  const numbers = text.match(/((\d+,)+\d+|\d+)/g);
+  return numbers ? numbers.length : 0;
+}
+
+function getUpperCaseWordsMessage(text: string) {
+  const uppercaseWords = text.match(/\b([A-Z]{2,})\b/g);
   const totalUppercaseWords = uppercaseWords ? uppercaseWords.length : 0;
   const words = text.match(/\b([a-zA-Z]+)\b/g);
   const totalWords = words ? words.length : 0;
   const isAllUppercaseWords = totalUppercaseWords / totalWords === 1;
-  const uppercaseWordsMessage = isAllUppercaseWords
-    ? 'all'
-    : totalUppercaseWords;
-  return uppercaseWordsMessage;
+  return isAllUppercaseWords ? 'all' : totalUppercaseWords;
 }
 
 const real = await readJson('./real-tweets.json');
 const fake = await readJson('./fake-tweets.json');
-for (let i = 0; i < real.length; i++) {
+for (let i = 0; i < Math.min(real.length, fake.length); i++) {
   console.log(real[i]);
   console.log('---');
   console.log(fake[i]);
   console.log('---');
-  console.log(countUpperCase(real[i]), countUpperCase(fake[i]));
+  console.log(
+    getUpperCaseWordsMessage(real[i]),
+    getUpperCaseWordsMessage(fake[i]),
+  );
+  console.log('\n\n');
 }
 
 // const REQUESTS_PER_MINUTE = 80;
-// const TOTAL_REQUESTS = prompts.length;
+// const TOTAL_REQUESTS = 79;
 // const newTweets = [];
 // for (let i = 0; i < TOTAL_REQUESTS; i += REQUESTS_PER_MINUTE) {
 //   console.log(`starting i=${i}`);
@@ -79,21 +85,21 @@ for (let i = 0; i < real.length; i++) {
 // }
 //
 // fs.writeFileSync('./fake-tweets.json', JSON.stringify(newTweets));
-
-async function generateTweet({ systemMessage, userMessage }: Prompt) {
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      {
-        role: 'system',
-        content: systemMessage,
-      },
-      { role: 'user', content: userMessage },
-    ],
-  });
-
-  const res = completion.choices[0].message.content as string;
-  const newTweet = res.split('\n\n').at(-1);
-  const match = newTweet.match(/Step 2 - "(.+)"/);
-  return match ? match[1] : '';
-}
+//
+// async function generateTweet({ systemMessage, userMessage }: Prompt) {
+//   const completion = await openai.chat.completions.create({
+//     model: 'gpt-4o',
+//     messages: [
+//       {
+//         role: 'system',
+//         content: systemMessage,
+//       },
+//       { role: 'user', content: userMessage },
+//     ],
+//   });
+//
+//   const res = completion.choices[0].message.content as string;
+//   const newTweet = res.split('\n\n').at(-1);
+//   const match = newTweet.match(/Step 2 - "(.+)"/);
+//   return match ? match[1] : '';
+// }
