@@ -67,7 +67,7 @@ function pickRandom<T>(array: T[], resetArray: T[]): T {
 </script>
 
 <template>
-  <div class="mx-auto mt-20 max-w-3xl px-4">
+  <div class="mx-auto my-20 max-w-2xl px-4">
     <h1 class="text-center text-3xl font-extrabold text-slate-900">
       Did Donald Trump Really Tweet That?
     </h1>
@@ -81,7 +81,9 @@ function pickRandom<T>(array: T[], resetArray: T[]): T {
         <span>Real</span><span class="-translate-y-0.5 text-xl">👍</span>
       </button>
 
-      <span class="text-3xl font-bold text-slate-900">{{ scoreText }}</span>
+      <span class="text-center text-3xl font-bold text-slate-900">{{
+        scoreText
+      }}</span>
 
       <button
         type="button"
