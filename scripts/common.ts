@@ -15,3 +15,12 @@ export async function readJson(path) {
   const content = await fs.readFile(path, 'utf-8');
   return JSON.parse(content);
 }
+
+export function getUpperCaseWordsMessage(text: string) {
+  const uppercaseWords = text.match(/\b([A-Z]{2,})\b/g);
+  const totalUppercaseWords = uppercaseWords ? uppercaseWords.length : 0;
+  const words = text.match(/\b([a-zA-Z]+)\b/g);
+  const totalWords = words ? words.length : 0;
+  const isAllUppercaseWords = totalUppercaseWords / totalWords === 1;
+  return isAllUppercaseWords ? 'all' : totalUppercaseWords;
+}
