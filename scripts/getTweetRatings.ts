@@ -2,6 +2,7 @@ import tweetsJson from './tweets.json' with { type: 'json' };
 import OpenAI from 'openai';
 import clipboardy from 'clipboardy';
 import * as fs from 'fs';
+import { delay } from './common.js';
 const openai = new OpenAI();
 console.time();
 
@@ -121,10 +122,6 @@ async function fetchAndWriteRatings(userMessage: string) {
     const rating = +secondPart;
     filteredTweets[id].rating = rating;
   }
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 console.timeEnd();
