@@ -20,7 +20,11 @@ let highlyRatedTweets = tweets
   .map((t) => t.text);
 
 highlyRatedTweets = [...new Set(highlyRatedTweets)];
-await writeJSON('./real-tweets.json', highlyRatedTweets.slice(0, 400));
+const finalTweets = highlyRatedTweets.slice(0, 400);
+await Promise.all([
+  writeJSON('./real-tweets.json', finalTweets),
+  writeJSON('../frontend/src/data/real-tweets.json', finalTweets),
+]);
 //await clipboardy.writeSync(
 //   highlyRatedTweets.map((t, i) => `${i}. ${t}`).join('\n'),
 // );
