@@ -11,7 +11,6 @@ const scoreText = computed(() => {
     : `${totalCorrect.value}/${totalAnswered.value} (${Math.floor((totalCorrect.value / totalAnswered.value) * 100)}%)`;
 });
 
-console.log(realTweets);
 enum TweetType {
   Fake,
   Real,
@@ -20,6 +19,7 @@ const randomTweet = ref('');
 const tweetType = ref();
 let fakeTweetsNotChosenFrom = [...fakeTweets];
 let realTweetsNotChosenFrom = [...realTweets];
+console.log(fakeTweetsNotChosenFrom, realTweetsNotChosenFrom);
 onMounted(() => {
   selectNewTweet();
 });

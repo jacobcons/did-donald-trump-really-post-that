@@ -1,7 +1,8 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import OpenAI from 'openai';
 import highlyRatedTweets from './real-tweets.json' with { type: 'json' };
 import { delay, getUpperCaseWordsMessage, readJson } from './common.js';
+import topics from './topics.json' with { type: 'json' };
 const openai = new OpenAI();
 import nlp from 'compromise';
 
@@ -26,6 +27,12 @@ for (const tweet of highlyRatedTweets) {
     ? ` It should be about ${personWithLongestName}, make it specific about that person.`
     : '';
 
+  const randomTopic = topics[Math.floor(Math.random() ** 2 * topics.length)];
+  const topicMessage =
+    !personWithLongestName && Math.random() < 1
+      ? ` It should be about ${randomTopic}`
+      : '';
+
   const beginningDots = tweet.match(/^(\.+)/);
   const totalBeginningDots = beginningDots ? beginningDots[1].length : 0;
   const beginningDotsMessage = totalBeginningDots
@@ -47,7 +54,7 @@ for (const tweet of highlyRatedTweets) {
       : '';
 
   const systemMessage = `I'm making a game where users have to guess whether a donald trump tweet is real or fake. You will generate a fake donald trump tweet in his style of speaking (it must be from before 2021 February)${makeExtraFunnyMessage}`;
-  const userMessage = `It should have roughly ${length} characters, ${uppercaseWordsMessage} words should be in all capitals${capitalizeWordsInARowMessage}, have ${totalHashtags} hashtags, have ${totalNumbers} numbers. Think about the huge list of possible topics you could tweet about.${personMessage}${beginningDotsMessage}${endingDotsMessage}
+  const userMessage = `It should have roughly ${length} characters, ${uppercaseWordsMessage} words should be in all capitals${capitalizeWordsInARowMessage}, have ${totalHashtags} hashtags, have ${totalNumbers} numbers. Think about the huge list of possible topics you could tweet about.${personMessage}${beginningDotsMessage}${endingDotsMessage}${topicMessage}
   
   Step 1 - reiterate number of rough characters, number of words in all capitals, number of hashtags, number of numbers
 
@@ -81,7 +88,13 @@ for (let i = 0; i < TOTAL_REQUESTS; i += REQUESTS_PER_MINUTE) {
   }
 }
 
-fs.writeFileSync('./fake-tweets.json', JSON.stringify(newTweets));
+await Promise.all([
+  fs.writeFile('./fake-tweets.json', JSON.stringify(newTweets)),
+  fs.writeFile(
+    '../frontend/src/data/fake-tweets.json',
+    JSON.stringify(newTweets),
+  ),
+]);
 
 async function generateTweet({ systemMessage, userMessage }: Prompt) {
   const completion = await openai.chat.completions.create({
