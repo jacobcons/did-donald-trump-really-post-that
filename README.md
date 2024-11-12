@@ -1,7 +1,7 @@
 # did-donald-trump-really-tweet-that
 ### [did-donald-trump-really-tweet-that.jacobcons.com](https://did-donald-trump-really-tweet-that.jacobcons.com)
 
-Guess whether Donald Trump tweets are real or generated with ai.
+A game where you must guess whether Donald Trump tweets are real or generated with ai
 
 ### Developing frontend locally
 1. Enter frontend folder - `cd frontend`

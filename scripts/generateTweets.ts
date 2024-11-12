@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import OpenAI from 'openai';
-import highlyRatedTweets from './real-tweets.json' with { type: 'json' };
+import realTweets from './real-tweets.json' with { type: 'json' };
 import {
   delay,
   getUpperCaseWordsMessage,
@@ -17,12 +17,7 @@ type Prompt = {
   systemMessage: string;
 };
 const prompts: Prompt[] = [];
-const shuffledRealTweets = shuffleArray(highlyRatedTweets).slice(0, 150);
-await Promise.all([
-  writeJSON('./real-tweets.json', shuffledRealTweets),
-  writeJSON('../frontend/src/data/real-tweets.json', shuffledRealTweets),
-]);
-for (const tweet of shuffledRealTweets) {
+for (const tweet of realTweets) {
   const length = tweet.length;
   const uppercaseWordsMessage = getUpperCaseWordsMessage(tweet);
   const totalNumbers = getTotalNumbers(tweet);
