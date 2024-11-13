@@ -24,17 +24,14 @@ for (const tweet of realTweets) {
   const totalHashtags = tweet.split('').filter((char) => char === '#').length;
 
   const doc = nlp(tweet);
-  const personWithLongestName = doc
-    .people()
-    .out('array')
-    .sort((a, b) => b.length - a.length)[0];
-  const personMessage = personWithLongestName
-    ? ` It should be about ${personWithLongestName}, make it specific about that person.`
+  const people = doc.people().out('array');
+  const peopleMessage = people.length
+    ? ` It should be about ${people.join(', ')}, make it specific about those people.`
     : '';
 
   const randomTopic = topics[Math.floor(Math.random() ** 2 * topics.length)];
   const topicMessage =
-    !personWithLongestName && Math.random() < 0.8
+    !people.length && Math.random() < 0.8
       ? ` It should be about ${randomTopic}`
       : '';
 
@@ -63,7 +60,7 @@ for (const tweet of realTweets) {
       : '';
 
   const systemMessage = `I'm making a game where users have to guess whether a donald trump tweet is real or fake. You will generate a fake donald trump tweet in his style of speaking (it must be from before 2021 February)${makeExtraFunnyMessage}`;
-  const userMessage = `It should have roughly ${length} characters, ${uppercaseWordsMessage} words should be in all capitals${capitalizeWordsInARowMessage}, have ${totalHashtags} hashtags, have ${totalNumbers} numbers. Think about the huge list of possible topics you could tweet about.${personMessage}${beginningDotsMessage}${endingDotsMessage}${topicMessage}${ampersandMessage}
+  const userMessage = `It should have roughly ${length} characters, ${uppercaseWordsMessage} words should be in all capitals${capitalizeWordsInARowMessage}, have ${totalHashtags} hashtags, have ${totalNumbers} numbers. Think about the huge list of possible topics you could tweet about.${peopleMessage}${beginningDotsMessage}${endingDotsMessage}${topicMessage}${ampersandMessage}
   
   Step 1 - reiterate number of rough characters, number of words in all capitals, number of hashtags, number of numbers
 
