@@ -13,5 +13,5 @@ export type Tweet = {
 export type StrippedTweet = {
   id: number;
   text: string;
-  rating?: number;
+  rating: number;
 };

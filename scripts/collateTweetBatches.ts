@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import clipboardy from 'clipboardy';
 import { writeJSON } from './utils.js';
+import { StrippedTweet, Tweet } from './types.js';
 
 // read all json files from batches dir
 const DIR_PATH = './batches';
@@ -12,23 +13,24 @@ for (const file of files) {
 const fileContents = await Promise.all(batches);
 
 // parse the json
-const tweets = [];
+const tweets: StrippedTweet[] = [];
 for (const fileContent of fileContents) {
   tweets.push(...JSON.parse(fileContent));
 }
 
 // filter the tweets to only get highly rated candidates
 // remove tweets that would make poor candidates due to certain features that were missed before batches were made
-let bestCandidateTweets = tweets.filter(
-  (t) =>
-    t.rating >= 9 &&
-    !t.text.includes('http') &&
-    !t.text.startsWith('.') &&
-    !t.text.match(/(\.+){2,}$/),
-);
+let bestCandidateTweets = tweets
+  .filter(
+    (t) =>
+      t.rating >= 9 &&
+      !t.text.includes('http') &&
+      !t.text.startsWith('.') &&
+      !t.text.match(/(\.+){2,}$/),
+  )
+  .map((t) => t.text);
 // remove duplicate tweets
 bestCandidateTweets = [...new Set(bestCandidateTweets)];
-console.log(bestCandidateTweets.length);
 
 // write these final tweets to the fs
 await Promise.all([

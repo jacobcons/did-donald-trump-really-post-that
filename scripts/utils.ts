@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import {StrippedTweet, Tweet} from './types.js';
+import { StrippedTweet, Tweet } from './types.js';
 
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -39,14 +39,14 @@ export function shuffleArray(array) {
 }
 
 export function estimateTokens(str: string) {
-  return str.length / 4
+  return str.length / 4;
 }
 
 // get the tweets that are easiest to generate for ai
 export async function getFilteredTweets() {
-  const tweets = await readJson('./tweets.json') as Tweet[];
+  const tweets = (await readJson('./tweets.json')) as Tweet[];
 
-  let filteredTweets: StrippedTweet[] = tweets
+  let filteredTweets: Pick<Tweet, 'id' | 'text'>[] = tweets
     .filter(
       (tweet) =>
         tweet.isRetweet === 'f' &&
@@ -56,7 +56,9 @@ export async function getFilteredTweets() {
     )
     .sort((a, b) => b.favorites - a.favorites)
     .map((tweet) => ({ id: tweet.id, text: tweet.text }));
-  const tweetsWithIndex = filteredTweets.map((tweet, i) => `${i}. ${tweet.text}`);
+  const tweetsWithIndex = filteredTweets.map(
+    (tweet, i) => `${i}. ${tweet.text}`,
+  );
 
-  return { filteredTweets, tweetsWithIndex }
+  return { filteredTweets, tweetsWithIndex };
 }
