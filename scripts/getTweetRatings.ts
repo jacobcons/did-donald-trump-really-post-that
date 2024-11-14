@@ -1,66 +1,19 @@
-import tweetsJson from './tweets.json' with { type: 'json' };
 import OpenAI from 'openai';
-import clipboardy from 'clipboardy';
 import * as fs from 'fs';
-import { delay } from './common.js';
+import { delay, estimateTokens, getFilteredTweets, readJson } from './utils.js';
+import {
+  ROUGH_OUTPUT_TOKENS,
+  SYSTEM_MESSAGE,
+  SYSTEM_MESSAGE_TOKENS,
+  TWEETS_PER_REQUEST,
+} from './constants.js';
 const openai = new OpenAI();
+
 console.time();
+// get tweets with features that are easiest to generate with llm
+const { filteredTweets, tweetsWithIndex } = await getFilteredTweets();
 
-type Tweet = {
-  id: number;
-  text: string;
-  isRetweet: 't' | 'f'; // Assuming "t" represents true and "f" represents false
-  isDeleted: 't' | 'f';
-  device: string;
-  favorites: number;
-  retweets: number;
-  date: string; // If needed, you could parse this into a Date object when using it
-  isFlagged: 't' | 'f';
-};
-type StrippedTweet = {
-  id: number;
-  text: string;
-  rating?: number;
-};
-const tweets = tweetsJson as Tweet[];
-
-// PREPARE TWEETS
-let filteredTweets: StrippedTweet[] = tweets
-  .filter(
-    (tweet) =>
-      tweet.isRetweet === 'f' &&
-      !tweet.text.includes('https') &&
-      !tweet.text.includes('http') &&
-      !tweet.text.includes('@'),
-  )
-  .sort((a, b) => b.favorites - a.favorites)
-  .map((tweet) => ({ id: tweet.id, text: tweet.text }));
-const tweetsWithIndex = filteredTweets.map((tweet, i) => `${i}. ${tweet.text}`);
-
-// PRICING ESTIMATES
-const SYSTEM_MESSAGE =
-  "I'm making a game where users have to guess if a donald trump tweet is real or fake. You are given tweets and must rate them based on how good a candidate they are from 1 to 10. Good candidates will be any of crazy/outrageous/absurd/funny/insulting etc... The format must be EXACTLY <tweet-id>. <rating> for each tweet";
-const SYSTEM_MESSAGE_TOKENS = SYSTEM_MESSAGE.length / 4;
-const ROUGH_OUTPUT_TOKENS = 20;
-const TWEETS_PER_REQUEST = 10;
-const TOTAL_NUMBER_OF_REQUESTS = Math.ceil(
-  tweetsWithIndex.length / TWEETS_PER_REQUEST,
-);
-function getPriceEstimates() {
-  const totalUserMessageTokens = tweetsWithIndex.join('\n').length / 4;
-  const totalSystemMessageTokens =
-    SYSTEM_MESSAGE_TOKENS * TOTAL_NUMBER_OF_REQUESTS;
-  const inputTokens = totalUserMessageTokens + totalSystemMessageTokens;
-  const calculatePrice = (tokens: number, pricePerMillion: number) =>
-    (tokens * (pricePerMillion / 1000000)).toFixed(2);
-  const inputTokensPrice = calculatePrice(inputTokens, 2.5);
-  const totalOutputTokens = (6 * tweetsWithIndex.length) / 4;
-  const outputTokensPrice = calculatePrice(totalOutputTokens, 10);
-  console.log(inputTokensPrice, outputTokensPrice);
-}
-// getPriceEstimates();
-
-// PREPARE BATCHES OF TWEETS
+// prepare batches of tweets to be sent off to llm in maximum possible group size whilst avoiding rate limits
 let i = 0;
 let batches: { batch: string[]; start: number; end: number }[] = [];
 while (i < tweetsWithIndex.length) {
@@ -72,7 +25,7 @@ while (i < tweetsWithIndex.length) {
     const tweetsForRequest = tweetsWithIndex
       .slice(i, i + TWEETS_PER_REQUEST)
       .join('\n');
-    const tweetsForRequestTokens = tweetsForRequest.length / 4;
+    const tweetsForRequestTokens = estimateTokens(tweetsForRequest);
     tokensInBatch +=
       tweetsForRequestTokens + SYSTEM_MESSAGE_TOKENS + ROUGH_OUTPUT_TOKENS;
     if (tokensInBatch < 20000) {
@@ -89,7 +42,8 @@ while (i < tweetsWithIndex.length) {
   });
 }
 
-// GET RATINGS
+// send prepared batches of tweets off to llm to get rating for how good a candidate the tweet is for the game
+// write the results to individual json files for collation later
 console.log(`total batches ${batches.length - 1}`);
 let promises = [];
 for (let i = 5; i <= batches.length - 1; i++) {
@@ -124,5 +78,4 @@ async function fetchAndWriteRatings(userMessage: string) {
     filteredTweets[id].rating = rating;
   }
 }
-
 console.timeEnd();

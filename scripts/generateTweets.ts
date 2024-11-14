@@ -7,7 +7,7 @@ import {
   readJson,
   shuffleArray,
   writeJSON,
-} from './common.js';
+} from './utils.js';
 import topics from './topics.json' with { type: 'json' };
 const openai = new OpenAI();
 import nlp from 'compromise';

@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import clipboardy from 'clipboardy';
-import { writeJSON } from './common.js';
+import { writeJSON } from './utils.js';
 
 const DIR_PATH = './batches';
 const files = await fs.readdir(DIR_PATH);

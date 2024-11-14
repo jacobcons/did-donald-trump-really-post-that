@@ -1,4 +1,4 @@
-import { getUpperCaseWordsMessage, readJson } from './common.js';
+import { getUpperCaseWordsMessage, readJson } from './utils.js';
 
 const real = await readJson('./real-tweets.json');
 const fake = await readJson('./fake-tweets.json');
