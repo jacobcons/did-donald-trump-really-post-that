@@ -1,12 +1,12 @@
 {
   "name": "scripts",
   "version": "1.0.0",
-  "main": "getTweetRatings.ts",
+  "main": "rateTweets.ts",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "get": "npx tsx getTweetRatings.ts",
-    "collate": "npx tsx collateTweetRatings.ts",
+    "rate": "npx tsx rateTweets.ts",
+    "collate": "npx tsx collateTweetBatches.ts",
     "generate": "npx tsx generateTweets.ts",
     "test2": "npx tsx test.ts"
   },
