@@ -17,10 +17,7 @@ type Prompt = {
   userMessage: string;
 };
 const prompts: Prompt[] = [];
-const realTweets: string[] = (await readJson('./real-tweets.json')).slice(
-  0,
-  150,
-);
+const realTweets: string[] = await readJson('./real-tweets.json');
 
 // iterate over the real tweets, extract features about them, prepare prompts to be used to generate fake tweets based
 // off of those features
