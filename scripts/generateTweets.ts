@@ -68,7 +68,6 @@ for (const tweet of realTweets) {
   prompts.push({ systemMessage, userMessage });
   console.log(systemMessage);
   console.log(userMessage);
-  process.exit(1);
 }
 
 // send off prepared prompts to generate fake tweets whilst avoiding rate limit

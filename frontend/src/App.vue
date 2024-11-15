@@ -151,7 +151,7 @@ function pickRandom(tweetType: TweetType): string {
       Made By
       <a
         href="https://jacobcons.com"
-        class="text-twitter hover:underline"
+        class="font-medium text-twitter hover:underline"
         target="_blank"
         >jacobcons.com</a
       >
