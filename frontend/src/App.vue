@@ -3,6 +3,7 @@ import fakeTweets from './data/fake-tweets.json';
 import realTweets from './data/real-tweets.json';
 import { computed, onMounted, ref } from 'vue';
 
+/* SCORE */
 const totalAnswered = ref(0);
 const totalCorrect = ref(0);
 const scoreText = computed(() => {
@@ -11,27 +12,41 @@ const scoreText = computed(() => {
     : `${totalCorrect.value}/${totalAnswered.value} (${Math.floor((totalCorrect.value / totalAnswered.value) * 100)}%)`;
 });
 
+/* TWEETS */
 enum TweetType {
   Fake,
   Real,
 }
+
 const randomTweet = ref('');
 const tweetType = ref();
-let fakeTweetsNotChosenFrom = [...fakeTweets];
-let realTweetsNotChosenFrom = [...realTweets];
-console.log(fakeTweets.length);
-console.log(fakeTweets.filter((t) => t === '').length);
-console.log(realTweets.length);
+
+const UNSELECTED_REAL_TWEETS_KEY = 'unselectedRealTweetsV1';
+const storedUnselectedRealTweets = localStorage.getItem(
+  UNSELECTED_REAL_TWEETS_KEY,
+);
+let unselectedRealTweets = storedUnselectedRealTweets
+  ? JSON.parse(storedUnselectedRealTweets)
+  : [...realTweets];
+
+const UNSELECTED_FAKE_TWEETS_KEY = 'unselectedFakeTweetsV1';
+const storedUnselectedFakeTweets = localStorage.getItem(
+  UNSELECTED_FAKE_TWEETS_KEY,
+);
+
+let unselectedFakeTweets = storedUnselectedFakeTweets
+  ? JSON.parse(storedUnselectedFakeTweets)
+  : [...fakeTweets];
+
 onMounted(() => {
   selectNewTweet();
 });
 
 function selectNewTweet() {
-  tweetType.value = Math.random() < 0.5 ? TweetType.Fake : TweetType.Real;
-  randomTweet.value =
-    tweetType.value === TweetType.Fake
-      ? pickRandom(fakeTweetsNotChosenFrom, fakeTweets)
-      : pickRandom(realTweetsNotChosenFrom, realTweets);
+  tweetType.value = Math.random() < 0.5 ? TweetType.Real : TweetType.Fake;
+  randomTweet.value = pickRandom(
+    tweetType.value === TweetType.Real ? TweetType.Real : TweetType.Fake,
+  );
 }
 
 let currentSound: HTMLAudioElement;
@@ -55,15 +70,24 @@ function makeGuess(guess: TweetType) {
   selectNewTweet();
 }
 
-function pickRandom<T>(array: T[], resetArray: T[]): T {
+function pickRandom(tweetType: TweetType): string {
+  const array =
+    tweetType === TweetType.Real ? unselectedRealTweets : unselectedFakeTweets;
   const index = Math.floor(Math.random() * array.length);
   const randomElement = array[index];
 
   array.splice(index, 1);
 
   if (!array.length) {
-    array.push(...resetArray);
+    array.push(...(tweetType === TweetType.Real ? realTweets : fakeTweets));
   }
+
+  localStorage.setItem(
+    tweetType === TweetType.Real
+      ? UNSELECTED_REAL_TWEETS_KEY
+      : UNSELECTED_FAKE_TWEETS_KEY,
+    JSON.stringify(array),
+  );
 
   return randomElement;
 }
@@ -117,5 +141,16 @@ function pickRandom<T>(array: T[], resetArray: T[]): T {
         <p class="text-lg" v-html="randomTweet"></p>
       </div>
     </div>
+    <footer
+      class="absolute bottom-4 left-1/2 -translate-x-1/2 transform text-center text-sm"
+    >
+      Made By
+      <a
+        href="https://jacobcons.com"
+        class="text-twitter hover:underline"
+        target="_blank"
+        >jacobcons.com</a
+      >
+    </footer>
   </div>
 </template>
