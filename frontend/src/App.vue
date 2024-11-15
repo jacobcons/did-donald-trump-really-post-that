@@ -49,6 +49,12 @@ function selectNewTweet() {
   );
 }
 
+let correctSound = new Audio('correct.mp3');
+correctSound.volume = 0.1;
+
+let wrongSound = new Audio('wrong.mp3');
+wrongSound.volume = 0.1;
+
 let currentSound: HTMLAudioElement;
 function makeGuess(guess: TweetType) {
   if (currentSound) {
@@ -58,11 +64,9 @@ function makeGuess(guess: TweetType) {
 
   if (guess === tweetType.value) {
     totalCorrect.value += 1;
-    currentSound = new Audio('correct.mp3');
-    currentSound.volume = 0.08;
+    currentSound = correctSound;
   } else {
-    currentSound = new Audio('wrong.mp3');
-    currentSound.volume = 0.02;
+    currentSound = wrongSound;
   }
 
   currentSound.play();
