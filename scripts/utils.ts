@@ -12,12 +12,12 @@ export function zip(...arrays) {
   );
 }
 
-export async function readJson(path) {
+export async function readJson(path: string) {
   const content = await fs.readFile(path, 'utf-8');
   return JSON.parse(content);
 }
 
-export async function writeJSON(path, data) {
+export async function writeJSON(path: string, data) {
   await fs.writeFile(path, JSON.stringify(data));
 }
 
@@ -30,7 +30,7 @@ export function getUpperCaseWordsMessage(text: string) {
   return isAllUppercaseWords ? 'all' : totalUppercaseWords;
 }
 
-export function shuffleArray(array) {
+export function shuffleArray<T>(array: T[]): T[] {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
     [array[i], array[j]] = [array[j], array[i]]; // swap elements

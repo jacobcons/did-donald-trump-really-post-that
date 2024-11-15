@@ -71,7 +71,7 @@ for (const tweet of realTweets) {
 // send off prepared prompts to generate fake tweets whilst avoiding rate limit
 const REQUESTS_PER_MINUTE = 80;
 const TOTAL_REQUESTS = prompts.length;
-const newTweets = [];
+let newTweets = [];
 for (let i = 0; i < TOTAL_REQUESTS; i += REQUESTS_PER_MINUTE) {
   console.log(`starting i=${i}`);
   const promptBatch = prompts.slice(i, i + REQUESTS_PER_MINUTE);
@@ -84,6 +84,8 @@ for (let i = 0; i < TOTAL_REQUESTS; i += REQUESTS_PER_MINUTE) {
     await delay(61000);
   }
 }
+
+newTweets = newTweets.filter((t) => t !== '');
 
 // write fake tweets to the fs
 await Promise.all([

@@ -1,11 +1,5 @@
-import { getUpperCaseWordsMessage, readJson } from './utils.js';
+import { getUpperCaseWordsMessage, readJson, writeJSON } from './utils.js';
 
-const real = await readJson('./real-tweets.json');
-const fake = await readJson('./fake-tweets.json');
-for (let i = 0; i < Math.min(real.length, fake.length); i++) {
-  console.log(real[i]);
-  console.log('---');
-  console.log(fake[i]);
-  console.log('---');
-  console.log('\n');
-}
+let fake = await readJson('./fake-tweets.json');
+fake = fake.filter((t) => t !== '');
+await writeJSON('./fake-tweets.json', fake);
