@@ -17,23 +17,23 @@ type Prompt = {
   userMessage: string;
 };
 const prompts: Prompt[] = [];
-const realTweets: string[] = await readJSON('./real-tweets.json');
+const realTweets: StrippedTweet[] = await readJSON('./real-tweets.json');
 
 // iterate over the real tweets, extract features about them, prepare prompts to be used to generate fake tweets based
 // off of those features
-for (const tweet of realTweets) {
-  const length = tweet.length;
-  const uppercaseWordsMessage = getUpperCaseWordsMessage(tweet);
+for (const { text } of realTweets) {
+  const length = text.length;
+  const uppercaseWordsMessage = getUpperCaseWordsMessage(text);
   const capitalizeWordsInARowMessage =
     uppercaseWordsMessage === 'all' || uppercaseWordsMessage >= 5
       ? '(sometimes you should capitalize lots of words in a row)'
       : '';
-  const numbers = tweet.match(/((\d+,)+\d+|\d+)/g);
+  const numbers = text.match(/((\d+,)+\d+|\d+)/g);
   const totalNumbers = numbers ? numbers.length : 0;
-  const totalHashtags = tweet.split('').filter((char) => char === '#').length;
+  const totalHashtags = text.split('').filter((char) => char === '#').length;
 
   const tweetAttributes: string[] = [];
-  const doc = nlp(tweet);
+  const doc = nlp(text);
   const people = doc.people().out('array');
   if (people.length) {
     tweetAttributes.push(
@@ -46,11 +46,11 @@ for (const tweet of realTweets) {
     tweetAttributes.push(`It should be about ${randomTopic}`);
   }
 
-  if (tweet.includes('&amp;')) {
+  if (text.includes('&amp;')) {
     tweetAttributes.push(`It should make use of & symbols`);
   }
 
-  if (tweet.includes('(')) {
+  if (text.includes('(')) {
     tweetAttributes.push(`It should make use of brackets`);
   }
 
@@ -66,8 +66,6 @@ for (const tweet of realTweets) {
   Step 2 - "<tweet>"`;
 
   prompts.push({ systemMessage, userMessage });
-  console.log(systemMessage);
-  console.log(userMessage);
 }
 
 // send off prepared prompts to generate fake tweets whilst avoiding rate limit

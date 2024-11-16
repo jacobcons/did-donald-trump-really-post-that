@@ -7,6 +7,8 @@ let [real, fake] = await Promise.all([
 
 let s = 0;
 for (let i = 0; i < Math.min(real.length, fake.length); i++) {
-  s += real[i].length + fake[i].length;
+  console.log(real[i]);
+  console.log(fake[i]);
+  console.log('\n');
 }
 console.log(s);
