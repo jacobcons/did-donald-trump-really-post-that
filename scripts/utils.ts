@@ -12,7 +12,7 @@ export function zip(...arrays) {
   );
 }
 
-export async function readJson(path: string) {
+export async function readJSON(path: string) {
   const content = await fs.readFile(path, 'utf-8');
   return JSON.parse(content);
 }
@@ -44,7 +44,7 @@ export function estimateTokens(str: string) {
 
 // get the tweets that are easiest to generate for ai
 export async function getFilteredTweets() {
-  const tweets = (await readJson('./tweets.json')) as Tweet[];
+  const tweets = (await readJSON('./tweets.json')) as Tweet[];
 
   let filteredTweets: Pick<Tweet, 'id' | 'text'>[] = tweets
     .filter(

@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import {
   delay,
   getUpperCaseWordsMessage,
-  readJson,
+  readJSON,
   shuffleArray,
   writeJSON,
 } from './utils.js';
@@ -17,7 +17,7 @@ type Prompt = {
   userMessage: string;
 };
 const prompts: Prompt[] = [];
-const realTweets: string[] = await readJson('./real-tweets.json');
+const realTweets: string[] = await readJSON('./real-tweets.json');
 
 // iterate over the real tweets, extract features about them, prepare prompts to be used to generate fake tweets based
 // off of those features

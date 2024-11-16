@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import * as fs from 'fs';
-import { delay, estimateTokens, getFilteredTweets, readJson } from './utils.js';
+import { delay, estimateTokens, getFilteredTweets, readJSON } from './utils.js';
 import {
   ROUGH_OUTPUT_TOKENS,
   SYSTEM_MESSAGE,

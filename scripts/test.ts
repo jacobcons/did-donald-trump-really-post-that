@@ -1,8 +1,8 @@
-import { getUpperCaseWordsMessage, readJson, writeJSON } from './utils.js';
+import { getUpperCaseWordsMessage, readJSON, writeJSON } from './utils.js';
 
 let [real, fake] = await Promise.all([
-  readJson('./real-tweets.json'),
-  readJson('./fake-tweets.json'),
+  readJSON('./real-tweets.json'),
+  readJSON('./fake-tweets.json'),
 ]);
 
 let s = 0;
