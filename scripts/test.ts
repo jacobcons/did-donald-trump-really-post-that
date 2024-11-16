@@ -5,14 +5,8 @@ let [real, fake] = await Promise.all([
   readJson('./fake-tweets.json'),
 ]);
 
+let s = 0;
 for (let i = 0; i < Math.min(real.length, fake.length); i++) {
-  if (getUpperCaseWordsMessage(real[i]) > 0) {
-    console.log(
-      getUpperCaseWordsMessage(real[i]),
-      getUpperCaseWordsMessage(fake[i]),
-    );
-    console.log(real[i]);
-    console.log(fake[i]);
-    console.log('\n');
-  }
+  s += real[i].length + fake[i].length;
 }
+console.log(s);
