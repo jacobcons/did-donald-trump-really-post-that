@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import {
   delay,
   getUpperCaseWordsMessage,
+  postProcessFakeTweets,
   readJSON,
   shuffleArray,
   writeJSON,
@@ -85,20 +86,13 @@ for (let i = 0; i < TOTAL_REQUESTS; i += REQUESTS_PER_MINUTE) {
   }
 }
 
-newTweets = newTweets.filter((t) => t !== '');
-
 // write fake tweets to the fs
 await Promise.all([
-  fs.writeFile(
-    '../frontend/src/data/real-tweets.json',
-    JSON.stringify(realTweets),
-  ),
   fs.writeFile('./fake-tweets.json', JSON.stringify(newTweets)),
-  fs.writeFile(
-    '../frontend/src/data/fake-tweets.json',
-    JSON.stringify(newTweets),
-  ),
 ]);
+
+// run post-processing on the generated fake tweets
+await postProcessFakeTweets();
 
 async function generateTweet({ systemMessage, userMessage }: Prompt) {
   const completion = await openai.chat.completions.create({

@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import { StrippedTweet, Tweet } from './types.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -61,4 +62,26 @@ export async function getFilteredTweets() {
   );
 
   return { filteredTweets, tweetsWithIndex };
+}
+
+export async function postProcessFakeTweets() {
+  let [real, fake]: [StrippedTweet[], string[]] = await Promise.all([
+    readJSON('./real-tweets.json'),
+    readJSON('./fake-tweets.json'),
+  ]);
+
+  // add a unique id, the id of the real tweet that the fake tweet is based from
+  const newFakeStructure = new Array(fake.length);
+  for (let i = 0; i < Math.min(real.length, fake.length); i++) {
+    newFakeStructure[i] = {
+      id: uuidv4(),
+      correspondingRealTweetId: real[i].id,
+      text: fake[i],
+    };
+  }
+
+  await Promise.all([
+    writeJSON('./fake-tweets.json', newFakeStructure),
+    writeJSON('../frontend/src/data/fake-tweets.json', newFakeStructure),
+  ]);
 }
