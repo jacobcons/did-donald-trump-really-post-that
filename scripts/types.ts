@@ -10,8 +10,14 @@ export type Tweet = {
   isFlagged: 't' | 'f';
 };
 
-export type StrippedTweet = {
+export type RealTweet = {
   id: number;
   text: string;
   rating: number;
+};
+
+export type FakeTweet = {
+  id: string;
+  correspondingRealTweetId: number;
+  text: string;
 };

@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import clipboardy from 'clipboardy';
 import { readJSON, writeJSON } from './utils.js';
-import { StrippedTweet, Tweet } from './types.js';
+import { RealTweet, Tweet } from './types.js';
 
 // read all json files from batches dir
 const DIR_PATH = './batches';
@@ -13,7 +13,7 @@ for (const file of files) {
 const fileContents = await Promise.all(batches);
 
 // parse the json
-const tweets: StrippedTweet[] = [];
+const tweets: RealTweet[] = [];
 for (const fileContent of fileContents) {
   tweets.push(...JSON.parse(fileContent));
 }

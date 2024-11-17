@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import { StrippedTweet, Tweet } from './types.js';
+import { RealTweet, Tweet } from './types.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export function delay(ms: number) {
@@ -65,7 +65,7 @@ export async function getFilteredTweets() {
 }
 
 export async function postProcessFakeTweets() {
-  let [real, fake]: [StrippedTweet[], string[]] = await Promise.all([
+  let [real, fake]: [RealTweet[], string[]] = await Promise.all([
     readJSON('./real-tweets.json'),
     readJSON('./fake-tweets.json'),
   ]);

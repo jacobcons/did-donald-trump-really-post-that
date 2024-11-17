@@ -11,14 +11,14 @@ import {
 import topics from './topics.json' with { type: 'json' };
 const openai = new OpenAI();
 import nlp from 'compromise';
-import { StrippedTweet } from './types.js';
+import { RealTweet } from './types.js';
 
 type Prompt = {
   systemMessage: string;
   userMessage: string;
 };
 const prompts: Prompt[] = [];
-const realTweets: StrippedTweet[] = await readJSON('./real-tweets.json');
+const realTweets: RealTweet[] = await readJSON('./real-tweets.json');
 
 // iterate over the real tweets, extract features about them, prepare prompts to be used to generate fake tweets based
 // off of those features
