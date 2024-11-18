@@ -14,23 +14,17 @@ let [real, fake] = await Promise.all([
   readJSON('./fake-tweets.json'),
 ]);
 
-// for (const file of await fs.readdir('./tts/audio/real')) {
-//   const id = file.split('.')[0];
-//   const tweet = real.find((t) => t.id === +id);
-//   console.log(id);
-//   console.log(tweet.text, '\n');
-// }
-//
-// for (const file of await fs.readdir('./tts/audio/fake')) {
-//   const id = file.split('.')[0];
-//   const tweet = fake.find((t) => t.id === id);
-//   console.log(id);
-//   console.log(tweet.text, '\n');
-// }
-
-for (let i = 0; i < real.length; i++) {
-  if (fake[i].text.includes('"')) {
-    console.log(JSON.stringify(fake[i]));
-    console.log(i);
-  }
+let i = 0;
+const realIds = new Set();
+for (const file of await fs.readdir('./tts/audio/real')) {
+  const id = file.split('.')[0];
+  realIds.add(+id);
 }
+console.log(real.every((t) => realIds.has(t.id)));
+
+const fakeIds = new Set();
+for (const file of await fs.readdir('./tts/audio/fake')) {
+  const id = file.split('.')[0];
+  fakeIds.add(id);
+}
+console.log(fake.every((t) => fakeIds.has(t.id)));

@@ -7,14 +7,9 @@ import { FakeTweet, RealTweet } from '../types.js';
 import * as path from 'path';
 import pLimit from 'p-limit';
 import { ToWords } from 'to-words';
-import { ProxyAgent } from 'undici';
 const toWords = new ToWords({
   localeCode: 'en-US',
 });
-
-const proxies = ['132.133.7.38'].map(
-  (proxy) => new ProxyAgent(`http://${proxy}`),
-);
 
 console.time();
 // decrypt object storage url
@@ -149,7 +144,7 @@ const fakeNotGeneratedTTS = fake.filter(
 );
 
 const limit = pLimit(Infinity);
-const BATCH_SIZE = 1;
+const BATCH_SIZE = 5;
 let j = 0;
 for (
   let i = 0;
@@ -180,7 +175,7 @@ for (
   console.log(results.filter((result) => result.status === 'rejected').length);
   console.log('\n');
   j++;
-  await delay(1 * 1000);
+  await delay(91 * 1000);
 }
 
 console.timeEnd();

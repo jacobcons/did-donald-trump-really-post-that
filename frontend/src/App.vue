@@ -14,12 +14,18 @@ const scoreText = computed(() => {
 
 /* TWEETS */
 enum TweetType {
-  Fake,
-  Real,
+  Fake = 'fake',
+  Real = 'real',
 }
+type Tweet = {
+  id: string;
+  text: string;
+};
 
-const randomTweet = ref('');
-const tweetType = ref();
+const randomTweet = ref<Tweet>();
+let tweetType: TweetType;
+let ttsAudio: HTMLAudioElement;
+// get real and fake tweets that haven't yet been shown to user to ensure user sees new tweets
 const UNSELECTED_REAL_TWEETS_KEY = 'unselectedRealTweetsV2';
 const storedUnselectedRealTweets = localStorage.getItem(
   UNSELECTED_REAL_TWEETS_KEY,
@@ -32,7 +38,6 @@ const UNSELECTED_FAKE_TWEETS_KEY = 'unselectedFakeTweetsV2';
 const storedUnselectedFakeTweets = localStorage.getItem(
   UNSELECTED_FAKE_TWEETS_KEY,
 );
-
 let unselectedFakeTweets = storedUnselectedFakeTweets
   ? JSON.parse(storedUnselectedFakeTweets)
   : [...fakeTweets];
@@ -42,34 +47,14 @@ onMounted(() => {
 });
 
 function selectNewTweet() {
-  tweetType.value = Math.random() < 0.5 ? TweetType.Real : TweetType.Fake;
+  tweetType = Math.random() < 0.5 ? TweetType.Real : TweetType.Fake;
   randomTweet.value = pickRandom(
-    tweetType.value === TweetType.Real ? TweetType.Real : TweetType.Fake,
+    tweetType === TweetType.Real ? TweetType.Real : TweetType.Fake,
   );
+  ttsAudio = new Audio(`tts/${tweetType}/${randomTweet.value.id}.mp3`);
 }
 
-let correctSound = new Audio('correct.mp3');
-let wrongSound = new Audio('wrong.mp3');
-let currentSound: HTMLAudioElement;
-function makeGuess(guess: TweetType) {
-  if (currentSound) {
-    currentSound.pause();
-    currentSound.currentTime = 0;
-  }
-
-  if (guess === tweetType.value) {
-    totalCorrect.value += 1;
-    currentSound = correctSound;
-  } else {
-    currentSound = wrongSound;
-  }
-
-  currentSound.play();
-  totalAnswered.value += 1;
-  selectNewTweet();
-}
-
-function pickRandom(tweetType: TweetType): string {
+function pickRandom(tweetType: TweetType): { id: string; text: string } {
   const array =
     tweetType === TweetType.Real ? unselectedRealTweets : unselectedFakeTweets;
   const index = Math.floor(Math.random() * array.length);
@@ -88,7 +73,39 @@ function pickRandom(tweetType: TweetType): string {
     JSON.stringify(array),
   );
 
-  return randomElement.text;
+  return randomElement;
+}
+
+let correctAudio = new Audio('correct.mp3');
+let wrongAudio = new Audio('wrong.mp3');
+let currentEvaluateAudio: HTMLAudioElement;
+function makeGuess(guess: TweetType) {
+  stopAudio(currentEvaluateAudio);
+  stopAudio(ttsAudio);
+
+  if (guess === tweetType) {
+    totalCorrect.value += 1;
+    currentEvaluateAudio = correctAudio;
+  } else {
+    currentEvaluateAudio = wrongAudio;
+  }
+
+  currentEvaluateAudio.play();
+  totalAnswered.value += 1;
+  selectNewTweet();
+}
+
+function stopAudio(audio: HTMLAudioElement) {
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+}
+
+function playTTS() {
+  stopAudio(ttsAudio);
+
+  ttsAudio.play();
 }
 </script>
 
@@ -121,7 +138,25 @@ function pickRandom(tweetType: TweetType): string {
     </div>
 
     <div class="mt-20 flex gap-x-4">
-      <img src="/profile_pic.jpg" alt="" class="h-20 w-20 rounded-full" />
+      <div class="flex max-w-20 flex-col items-center gap-y-2">
+        <img src="/profile_pic.jpg" alt="" class="rounded-full" />
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-8 w-8 cursor-pointer"
+          @click="playTTS"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z"
+          />
+        </svg>
+      </div>
       <div class="flex flex-col gap-y-2">
         <div class="flex items-center gap-x-0.5">
           <h2 class="text-xl font-bold text-slate-900">Donald Trump</h2>
@@ -137,7 +172,7 @@ function pickRandom(tweetType: TweetType): string {
           </svg>
         </div>
 
-        <p class="text-lg" v-html="randomTweet"></p>
+        <p class="text-lg" v-if="randomTweet" v-html="randomTweet.text"></p>
       </div>
     </div>
     <footer
