@@ -20,13 +20,15 @@ for (const fileContent of fileContents) {
 
 // filter the tweets to only get highly rated candidates
 // remove tweets that would make poor candidates due to certain features that were missed before batches were made
-let bestCandidateTweets = tweets.filter(
-  (t) =>
-    t.rating >= 9 &&
-    !t.text.includes('http') &&
-    !t.text.startsWith('.') &&
-    !t.text.match(/(\.+){2,}$/),
-);
+let bestCandidateTweets = tweets
+  .filter(
+    (t) =>
+      t.rating >= 9 &&
+      !t.text.includes('http') &&
+      !t.text.startsWith('.') &&
+      !t.text.match(/(\.+){2,}$/),
+  )
+  .map((t) => ({ ...t, text: t.text.replaceAll('""', '"') }));
 const tweetSet = new Set();
 const bestCandidateTweetsWithDuplicatesRemoved = [];
 for (const t of bestCandidateTweets) {

@@ -1,6 +1,8 @@
 import fs from 'fs/promises';
 import { RealTweet, Tweet } from './types.js';
 import { v4 as uuidv4 } from 'uuid';
+import OpenAI from 'openai';
+const openai = new OpenAI();
 
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -64,24 +66,20 @@ export async function getFilteredTweets() {
   return { filteredTweets, tweetsWithIndex };
 }
 
-export async function postProcessFakeTweets() {
-  let [real, fake]: [RealTweet[], string[]] = await Promise.all([
-    readJSON('./real-tweets.json'),
-    readJSON('./fake-tweets.json'),
-  ]);
+export async function chatCompletion(
+  systemMessage: string,
+  userMessage: string,
+) {
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      {
+        role: 'system',
+        content: systemMessage,
+      },
+      { role: 'user', content: userMessage },
+    ],
+  });
 
-  // add a unique id, the id of the real tweet that the fake tweet is based from
-  const newFakeStructure = new Array(fake.length);
-  for (let i = 0; i < Math.min(real.length, fake.length); i++) {
-    newFakeStructure[i] = {
-      id: uuidv4(),
-      correspondingRealTweetId: real[i].id,
-      text: fake[i],
-    };
-  }
-
-  await Promise.all([
-    writeJSON('./fake-tweets.json', newFakeStructure),
-    writeJSON('../frontend/src/data/fake-tweets.json', newFakeStructure),
-  ]);
+  return completion.choices[0].message.content as string;
 }

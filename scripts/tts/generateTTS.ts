@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { readJSON } from '../utils.js';
 import { FakeTweet, RealTweet } from '../types.js';
 import * as path from 'path';
+import pLimit from 'p-limit';
 
 console.time();
 // decrypt object storage url
@@ -20,23 +21,44 @@ function decrypt(str: string) {
 
 // get url for generated tts
 async function generateAudioUrl(text: string, token: string) {
-  const res = await axios.postForm('https://tts-api.imyfone.com/v5/voice/tts', {
-    accent: 'English(US)',
-    emotion_name: 'Angry',
-    text: `<speak>${text}</speak>`,
-    speed: 1,
-    volume: 50,
-    voice_id: '7f954f14-55fa-11ef-a7a0-00163e0e200f',
-    article_title: 'Unnamed',
-    is_audition: 1,
-    pitch: 3,
-    stability: 50,
-    similarity: 95,
-    exaggeration: 0,
-    eliminate_noise: 0,
-    country_code: 'GB',
-    token,
-  });
+  const res = await axios.postForm(
+    'https://tts-api.imyfone.com/v5/voice/tts',
+    {
+      isCancel: 'true',
+      accent: 'English(US)',
+      emotion_name: 'Default',
+      text: `<speak>${text.replaceAll('#', 'hashtag ')}</speak>`,
+      speed: 1,
+      volume: 50,
+      voice_id: '7f954f14-55fa-11ef-a7a0-00163e0e200f',
+      article_title: 'Unnamed',
+      is_audition: 1,
+      pitch: 3,
+      stability: 50,
+      similarity: 95,
+      exaggeration: 0,
+      eliminate_noise: 0,
+      country_code: 'GB',
+      token,
+    },
+    {
+      headers: {
+        // Accept: 'application/json, text/plain, */*',
+        // 'Accept-Encoding': 'gzip, deflate, br, zstd',
+        // 'Accept-Language': 'en-GB,en;q=0.8',
+        Authorization: token,
+        // Connection: 'keep-alive',
+        'Content-Length': String(text.length + 1713),
+        // 'Content-Type':
+        //   'multipart/form-data; boundary=----WebKitFormBoundaryAZRZoABHBB6ZmtCw',
+        // Host: 'tts-api.imyfone.com',
+        // Origin: 'https://www.topmediai.com',
+        // Referer: 'https://www.topmediai.com/',
+        token,
+      },
+    },
+  );
+  console.log(res.data.message);
   return decrypt(res.data.data.oss_url);
 }
 
@@ -61,21 +83,57 @@ async function generateAndDownloadAudio(text: string, path: string) {
   await downloadAudio(url, path);
 }
 
-// main
+// MAIN
 const [real, fake]: [RealTweet[], FakeTweet[]] = await Promise.all([
   readJSON('../real-tweets.json'),
   readJSON('../fake-tweets.json'),
 ]);
 
-let promises = [];
-for (let i = 0; i < 1; i++) {
-  promises.push(
-    generateAndDownloadAudio(real[i].text, `real/${real[i].id}`),
-    generateAndDownloadAudio(fake[i].text, `fake/${fake[i].id}`),
-  );
-}
+const token = await generateAuthToken();
 
-await Promise.allSettled(promises);
-console.log('finished');
+const url = await generateAudioUrl(
+  `THE OBSERVERS WERE NOT ALLOWED INTO THE COUNTING ROOMS. I WON THE ELECTION, GOT 71,000,000 LEGAL VOTES. BAD THINGS HAPPENED WHICH OUR OBSERVERS WERE NOT ALLOWED TO SEE. NEVER HAPPENED BEFORE. MILLIONS OF MAIL-IN BALLOTS WERE SENT TO PEOPLE WHO NEVER ASKED FOR THEM!`,
+  token,
+);
+
+// WORK out which real and fake tweets the tts hasn't been generated for yet
+// const realTweetIdsAlreadyGeneratedTTS = new Set();
+// for (const file of await fs.readdir('./audio/real')) {
+//   const id = file.split('.')[0];
+//   realTweetIdsAlreadyGeneratedTTS.add(+id);
+// }
+// const realNotGeneratedTTS = real.filter(
+//   (t) => !realTweetIdsAlreadyGeneratedTTS.has(t.id),
+// );
+//
+// const fakeTweetIdsAlreadyGeneratedTTS = new Set();
+// for (const file of await fs.readdir('./audio/fake')) {
+//   const id = file.split('.')[0];
+//   fakeTweetIdsAlreadyGeneratedTTS.add(id);
+// }
+// const fakeNotGeneratedTTS = fake.filter(
+//   (t) => !fakeTweetIdsAlreadyGeneratedTTS.has(t.id),
+// );
+//
+// let promises = [];
+// const limit = pLimit(1);
+// for (let i = 0; i < 1; i++) {
+//   promises.push(
+//     limit(() =>
+//       generateAndDownloadAudio(
+//         realNotGeneratedTTS[i].text,
+//         `real/${realNotGeneratedTTS[i].id}`,
+//       ),
+//     ),
+//     limit(() =>
+//       generateAndDownloadAudio(
+//         fakeNotGeneratedTTS[i].text,
+//         `fake/${fakeNotGeneratedTTS[i].id}`,
+//       ),
+//     ),
+//   );
+// }
+
+// await Promise.allSettled(promises);
 
 console.timeEnd();

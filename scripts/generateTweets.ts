@@ -3,15 +3,26 @@ import OpenAI from 'openai';
 import {
   delay,
   getUpperCaseWordsMessage,
-  postProcessFakeTweets,
   readJSON,
   shuffleArray,
   writeJSON,
+  chatCompletion,
 } from './utils.js';
 import topics from './topics.json' with { type: 'json' };
 const openai = new OpenAI();
 import nlp from 'compromise';
 import { RealTweet } from './types.js';
+
+/*
+Done some post-processing on fake tweets
+If I do a regen =>
+  - New fake structure:
+  {
+    id: uuidv4(),
+    correspondingRealTweetId: real[i].id,
+    text: fake[i],
+  }
+  - Look for quotes and -- in features*/
 
 type Prompt = {
   systemMessage: string;
@@ -91,22 +102,8 @@ await Promise.all([
   fs.writeFile('./fake-tweets.json', JSON.stringify(newTweets)),
 ]);
 
-// run post-processing on the generated fake tweets
-await postProcessFakeTweets();
-
 async function generateTweet({ systemMessage, userMessage }: Prompt) {
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      {
-        role: 'system',
-        content: systemMessage,
-      },
-      { role: 'user', content: userMessage },
-    ],
-  });
-
-  const res = completion.choices[0].message.content as string;
+  const res = await chatCompletion(systemMessage, userMessage);
   const newTweet = res.split('\n\n').at(-1);
   const match = newTweet.match(/Step 2 - "(.+)"/);
   return match ? match[1] : '';
