@@ -6,6 +6,10 @@ import { readJSON } from '../utils.js';
 import { FakeTweet, RealTweet } from '../types.js';
 import * as path from 'path';
 import pLimit from 'p-limit';
+import { ToWords } from 'to-words';
+const toWords = new ToWords({
+  localeCode: 'en-US',
+});
 
 console.time();
 // decrypt object storage url
@@ -27,7 +31,7 @@ async function generateAudioUrl(text: string, token: string) {
       isCancel: 'true',
       accent: 'English(US)',
       emotion_name: 'Default',
-      text: `<speak>${text.replaceAll('#', 'hashtag ')}</speak>`,
+      text: `<speak>${cleanTextForTTS(text)}</speak>`,
       speed: 1,
       volume: 50,
       voice_id: '7f954f14-55fa-11ef-a7a0-00163e0e200f',
@@ -62,6 +66,16 @@ async function generateAudioUrl(text: string, token: string) {
   return decrypt(res.data.data.oss_url);
 }
 
+function cleanTextForTTS(text: string) {
+  // convert hashtag symbols to the word hashtag
+  // convert numbers to words
+  return text
+    .replaceAll('#', 'hashtag ')
+    .replaceAll(/-?(?:\d{1,3}(?:,\d{3})+)|\d+(?:\.\d+)?/g, (match) => {
+      return toWords.convert(+match.replaceAll(',', ''));
+    });
+}
+
 async function downloadAudio(url: string, path: string) {
   const res = await axios.get(url, { responseType: 'arraybuffer' });
   const fileData = Buffer.from(res.data, 'binary');
@@ -84,17 +98,17 @@ async function generateAndDownloadAudio(text: string, path: string) {
 }
 
 // MAIN
-const [real, fake]: [RealTweet[], FakeTweet[]] = await Promise.all([
-  readJSON('../real-tweets.json'),
-  readJSON('../fake-tweets.json'),
-]);
-
-const token = await generateAuthToken();
-
-const url = await generateAudioUrl(
-  `THE OBSERVERS WERE NOT ALLOWED INTO THE COUNTING ROOMS. I WON THE ELECTION, GOT 71,000,000 LEGAL VOTES. BAD THINGS HAPPENED WHICH OUR OBSERVERS WERE NOT ALLOWED TO SEE. NEVER HAPPENED BEFORE. MILLIONS OF MAIL-IN BALLOTS WERE SENT TO PEOPLE WHO NEVER ASKED FOR THEM!`,
-  token,
-);
+// const [real, fake]: [RealTweet[], FakeTweet[]] = await Promise.all([
+//   readJSON('../real-tweets.json'),
+//   readJSON('../fake-tweets.json'),
+// ]);
+//
+// const token = await generateAuthToken();
+//
+// const url = await generateAudioUrl(
+//   `THE OBSERVERS WERE NOT ALLOWED INTO THE COUNTING ROOMS. I WON THE ELECTION, GOT 71,000,000 LEGAL VOTES. BAD THINGS HAPPENED WHICH OUR OBSERVERS WERE NOT ALLOWED TO SEE. NEVER HAPPENED BEFORE. MILLIONS OF MAIL-IN BALLOTS WERE SENT TO PEOPLE WHO NEVER ASKED FOR THEM!`,
+//   token,
+// );
 
 // WORK out which real and fake tweets the tts hasn't been generated for yet
 // const realTweetIdsAlreadyGeneratedTTS = new Set();
