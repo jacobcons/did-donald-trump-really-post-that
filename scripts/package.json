@@ -26,6 +26,7 @@
     "openai": "^4.70.3",
     "p-limit": "^6.1.0",
     "to-words": "^4.1.0",
+    "undici": "^6.21.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

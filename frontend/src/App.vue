@@ -20,8 +20,7 @@ enum TweetType {
 
 const randomTweet = ref('');
 const tweetType = ref();
-
-const UNSELECTED_REAL_TWEETS_KEY = 'unselectedRealTweetsV1';
+const UNSELECTED_REAL_TWEETS_KEY = 'unselectedRealTweetsV2';
 const storedUnselectedRealTweets = localStorage.getItem(
   UNSELECTED_REAL_TWEETS_KEY,
 );
@@ -29,7 +28,7 @@ let unselectedRealTweets = storedUnselectedRealTweets
   ? JSON.parse(storedUnselectedRealTweets)
   : [...realTweets];
 
-const UNSELECTED_FAKE_TWEETS_KEY = 'unselectedFakeTweetsV1';
+const UNSELECTED_FAKE_TWEETS_KEY = 'unselectedFakeTweetsV2';
 const storedUnselectedFakeTweets = localStorage.getItem(
   UNSELECTED_FAKE_TWEETS_KEY,
 );
@@ -50,11 +49,7 @@ function selectNewTweet() {
 }
 
 let correctSound = new Audio('correct.mp3');
-correctSound.volume = 0.1;
-
 let wrongSound = new Audio('wrong.mp3');
-wrongSound.volume = 0.1;
-
 let currentSound: HTMLAudioElement;
 function makeGuess(guess: TweetType) {
   if (currentSound) {
@@ -93,7 +88,7 @@ function pickRandom(tweetType: TweetType): string {
     JSON.stringify(array),
   );
 
-  return randomElement;
+  return randomElement.text;
 }
 </script>
 

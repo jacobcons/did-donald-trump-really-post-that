@@ -2,11 +2,12 @@ import fs from 'fs/promises';
 import OpenAI from 'openai';
 import {
   delay,
-  getUpperCaseWordsMessage,
+  fractionOfUpperCaseWords,
   readJSON,
   shuffleArray,
   writeJSON,
   chatCompletion,
+  upperCaseWordsStats,
 } from './utils.js';
 import topics from './topics.json' with { type: 'json' };
 const openai = new OpenAI();
@@ -35,7 +36,9 @@ const realTweets: RealTweet[] = await readJSON('./real-tweets.json');
 // off of those features
 for (const { text } of realTweets) {
   const length = text.length;
-  const uppercaseWordsMessage = getUpperCaseWordsMessage(text);
+  const { totalUpperCaseWords, totalWords } = upperCaseWordsStats(text);
+  const uppercaseWordsMessage =
+    totalUpperCaseWords / totalWords === 1 ? 'all' : totalUpperCaseWords;
   const capitalizeWordsInARowMessage =
     uppercaseWordsMessage === 'all' || uppercaseWordsMessage >= 5
       ? '(sometimes you should capitalize lots of words in a row)'

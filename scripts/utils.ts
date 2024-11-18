@@ -24,13 +24,15 @@ export async function writeJSON(path: string, data) {
   await fs.writeFile(path, JSON.stringify(data));
 }
 
-export function getUpperCaseWordsMessage(text: string) {
-  const uppercaseWords = text.match(/\b([A-Z]{2,})\b/g);
-  const totalUppercaseWords = uppercaseWords ? uppercaseWords.length : 0;
+export function upperCaseWordsStats(text: string) {
+  const upperCaseWords = text.match(/\b([A-Z]{2,})\b/g);
+  const totalUpperCaseWords = upperCaseWords ? upperCaseWords.length : 0;
   const words = text.match(/\b([a-zA-Z]+)\b/g);
   const totalWords = words ? words.length : 0;
-  const isAllUppercaseWords = totalUppercaseWords / totalWords === 1;
-  return isAllUppercaseWords ? 'all' : totalUppercaseWords;
+  return {
+    totalUpperCaseWords,
+    totalWords,
+  };
 }
 
 export function shuffleArray<T>(array: T[]): T[] {
