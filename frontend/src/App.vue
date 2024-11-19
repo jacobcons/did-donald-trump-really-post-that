@@ -140,7 +140,7 @@ function playTTS() {
     </div>
 
     <div class="mt-20 flex gap-x-4">
-      <div class="flex max-w-20 flex-col items-center gap-y-2">
+      <div class="flex min-w-20 max-w-20 flex-col items-center gap-y-2">
         <img src="/profile_pic.jpg" alt="" class="rounded-full" />
 
         <svg
