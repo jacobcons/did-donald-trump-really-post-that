@@ -108,6 +108,7 @@ function stopAudio(audio: HTMLAudioElement) {
 
 function playTTS() {
   stopAudio(ttsAudio);
+  ttsAudio.load();
   ttsAudio.play();
 }
 </script>
