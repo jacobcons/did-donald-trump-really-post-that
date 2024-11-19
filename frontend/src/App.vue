@@ -93,6 +93,7 @@ function makeGuess(guess: TweetType) {
     currentEvaluateAudio = wrongAudio;
   }
 
+  currentEvaluateAudio.load();
   currentEvaluateAudio.play();
   totalAnswered.value += 1;
   selectNewTweet();
