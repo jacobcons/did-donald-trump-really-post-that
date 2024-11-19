@@ -52,6 +52,7 @@ function selectNewTweet() {
     tweetType === TweetType.Real ? TweetType.Real : TweetType.Fake,
   );
   ttsAudio = new Audio(`tts/${tweetType}/${randomTweet.value.id}.mp3`);
+  ttsAudio.load();
 }
 
 function pickRandom(tweetType: TweetType): { id: string; text: string } {
@@ -77,7 +78,9 @@ function pickRandom(tweetType: TweetType): { id: string; text: string } {
 }
 
 let correctAudio = new Audio('correct.mp3');
+correctAudio.load();
 let wrongAudio = new Audio('wrong.mp3');
+wrongAudio.load();
 let currentEvaluateAudio: HTMLAudioElement;
 function makeGuess(guess: TweetType) {
   stopAudio(currentEvaluateAudio);
@@ -104,7 +107,6 @@ function stopAudio(audio: HTMLAudioElement) {
 
 function playTTS() {
   stopAudio(ttsAudio);
-
   ttsAudio.play();
 }
 </script>
