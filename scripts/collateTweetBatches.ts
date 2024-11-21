@@ -40,9 +40,9 @@ for (const t of bestCandidateTweets) {
 
 // write these final tweets to the fs
 await Promise.all([
-  writeJSON('./real-tweets.json', bestCandidateTweetsWithDuplicatesRemoved),
+  writeJSON('./all-real-tweets.json', bestCandidateTweetsWithDuplicatesRemoved),
   writeJSON(
-    '../frontend/src/data/real-tweets.json',
+    '../frontend/src/data/all-real-tweets.json',
     bestCandidateTweetsWithDuplicatesRemoved,
   ),
 ]);

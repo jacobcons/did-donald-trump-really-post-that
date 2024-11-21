@@ -26,7 +26,7 @@ const randomTweet = ref<Tweet>();
 let tweetType: TweetType;
 let ttsAudio: HTMLAudioElement;
 // get real and fake tweets that haven't yet been shown to user to ensure user sees new tweets
-const UNSELECTED_REAL_TWEETS_KEY = 'unselectedRealTweetsV2';
+const UNSELECTED_REAL_TWEETS_KEY = 'unselectedRealTweetsV3';
 const storedUnselectedRealTweets = localStorage.getItem(
   UNSELECTED_REAL_TWEETS_KEY,
 );
@@ -34,7 +34,7 @@ let unselectedRealTweets = storedUnselectedRealTweets
   ? JSON.parse(storedUnselectedRealTweets)
   : [...realTweets];
 
-const UNSELECTED_FAKE_TWEETS_KEY = 'unselectedFakeTweetsV2';
+const UNSELECTED_FAKE_TWEETS_KEY = 'unselectedFakeTweetsV3';
 const storedUnselectedFakeTweets = localStorage.getItem(
   UNSELECTED_FAKE_TWEETS_KEY,
 );

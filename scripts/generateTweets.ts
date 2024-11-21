@@ -30,7 +30,7 @@ type Prompt = {
   userMessage: string;
 };
 const prompts: Prompt[] = [];
-const realTweets: RealTweet[] = await readJSON('./real-tweets.json');
+const realTweets: RealTweet[] = await readJSON('./all-real-tweets.json');
 
 // iterate over the real tweets, extract features about them, prepare prompts to be used to generate fake tweets based
 // off of those features
@@ -102,7 +102,7 @@ for (let i = 0; i < TOTAL_REQUESTS; i += REQUESTS_PER_MINUTE) {
 
 // write fake tweets to the fs
 await Promise.all([
-  fs.writeFile('./fake-tweets.json', JSON.stringify(newTweets)),
+  fs.writeFile('./all-fake-tweets.json', JSON.stringify(newTweets)),
 ]);
 
 async function generateTweet({ systemMessage, userMessage }: Prompt) {

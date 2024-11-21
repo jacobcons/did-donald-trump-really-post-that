@@ -120,8 +120,8 @@ async function generateAndDownloadAudio(text: string, path: string) {
 
 // MAIN
 const [real, fake]: [RealTweet[], FakeTweet[]] = await Promise.all([
-  readJSON('../real-tweets.json'),
-  readJSON('../fake-tweets.json'),
+  readJSON('../all-real-tweets.json'),
+  readJSON('../all-fake-tweets.json'),
 ]);
 
 // WORK out which real and fake tweets the tts hasn't been generated for yet
