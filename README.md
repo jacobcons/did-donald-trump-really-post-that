@@ -3,7 +3,7 @@
 
 A game where you must guess whether Donald Trump tweets are real or generated with AI (includes a great Trump voice)
 
-https://github.com/user-attachments/assets/2be41b0b-392e-4a8c-9a46-65fcc886a5b6
+https://github.com/user-attachments/assets/a03180bd-c295-4fc3-9066-b2822d4e3736
 
 ### Developing frontend locally
 1. Enter frontend folder - `cd frontend`
