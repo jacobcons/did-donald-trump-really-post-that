@@ -1,7 +1,7 @@
 # did-donald-trump-really-tweet-that
 ### [did-donald-trump-really-tweet-that.jacobcons.com](https://did-donald-trump-really-tweet-that.jacobcons.com)
 
-A game where you must guess whether Donald Trump tweets are real or generated with AI (includes a great Trump voice)
+A game where you have to guess whether Donald Trump tweets are real or generated with AI (includes a great Trump voice)
 
 https://github.com/user-attachments/assets/a03180bd-c295-4fc3-9066-b2822d4e3736
 
